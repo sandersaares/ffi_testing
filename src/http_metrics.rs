@@ -28,6 +28,11 @@ where
         }
     }
 
+    // Boilerplate, to allow the same FFI implementation to be easily cloned.
+    pub(crate) fn http_sys_ffi(&self) -> Arc<THttpSysFfi> {
+        Arc::clone(&self.http_sys_ffi)
+    }
+
     pub(crate) fn get_metrics(&self) -> String {
         self.http_sys_ffi
             .get_metrics_for(self.http_server.server_id())

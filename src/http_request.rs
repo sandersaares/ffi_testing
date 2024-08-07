@@ -17,6 +17,7 @@ where
         HttpRequestCore { http_request_ffi }
     }
 
+    // Boilerplate, to allow the same FFI implementation to be easily cloned.
     pub(crate) fn http_request_ffi(&self) -> Arc<THttpRequestFfi> {
         Arc::clone(&self.http_request_ffi)
     }
