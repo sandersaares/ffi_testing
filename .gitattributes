@@ -1,0 +1,5 @@
+# Cargo and various other Rust tools often emit files that have LF line endings.
+# Git will complain if we try to commit these on Windows due to safecrlf rules.
+# We normalize these files to always be legally LF, so Git is happy and everyone is happy.
+Cargo.lock text eol=lf
+Cargo.toml text eol=lf
