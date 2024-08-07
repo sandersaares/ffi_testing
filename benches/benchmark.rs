@@ -1,4 +1,4 @@
-use std::{hint::black_box, sync::Arc, time::SystemTime};
+use std::{ffi::c_ulong, hint::black_box, sync::Arc, time::SystemTime};
 
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
@@ -33,18 +33,23 @@ fn price_of_indirection(c: &mut Criterion) {
     group.finish();
 }
 
-fn time() -> SystemTime {
-    SystemTime::now()
+fn time() -> c_ulong {
+    unsafe { GetTickCount() }
 }
 
 trait Clock {
-    fn now(&self) -> SystemTime;
+    fn now(&self) -> c_ulong;
 }
 
 struct RealClock {}
 
 impl Clock for RealClock {
-    fn now(&self) -> SystemTime {
+    fn now(&self) -> c_ulong {
         time()
     }
+}
+
+#[link(name = "kernel32")]
+extern "system" {
+    fn GetTickCount() -> c_ulong;
 }
