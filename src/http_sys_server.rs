@@ -29,6 +29,16 @@ where
         }
     }
 
+    // Boilerplate, to allow the same FFI implementation to be easily cloned.
+    pub(crate) fn http_sys_ffi(&self) -> Arc<THttpSysFfi> {
+        Arc::clone(&self.http_sys_ffi)
+    }
+
+    // Boilerplate, to allow the same FFI implementation to be easily cloned.
+    pub(crate) fn http_request_ffi(&self) -> Arc<THttpRequestFfi> {
+        Arc::clone(&self.http_request_ffi)
+    }
+
     pub(crate) fn start(&self) -> i32 {
         self.http_sys_ffi.http_start()
     }
@@ -36,9 +46,13 @@ where
     pub(crate) fn accept(&self) -> HttpRequestCore<THttpRequestFfi> {
         HttpRequestCore::new(Arc::clone(&self.http_request_ffi))
     }
+
+    pub(crate) fn server_id(&self) -> i32 {
+        1234
+    }
 }
 
-// This is the public API exposed to Oxidizer partners.
+// This is the public API exposed library consumers.
 // It is a wrapper that uses real FFI for everything underneath.
 pub struct HttpSysServer(HttpSysServerCore<RealHttpSysFfi, RealHttpRequestFfi>);
 
@@ -57,6 +71,20 @@ impl HttpSysServer {
     }
 
     pub fn accept(&self) -> HttpRequest {
-        HttpRequest::from_core(self.0.accept())
+        self.0.accept().into()
+    }
+}
+
+// Boilerplate transform between core/public types.
+impl From<HttpSysServer> for HttpSysServerCore<RealHttpSysFfi, RealHttpRequestFfi> {
+    fn from(http_sys_server: HttpSysServer) -> Self {
+        http_sys_server.0
+    }
+}
+
+// Boilerplate transform between core/public types.
+impl From<HttpSysServerCore<RealHttpSysFfi, RealHttpRequestFfi>> for HttpSysServer {
+    fn from(http_sys_server_core: HttpSysServerCore<RealHttpSysFfi, RealHttpRequestFfi>) -> Self {
+        HttpSysServer(http_sys_server_core)
     }
 }
