@@ -1,4 +1,4 @@
-use std::{sync::Arc, thread};
+use std::thread;
 
 use crate::{
     ffi::{HttpRequestFfi, HttpSysFfi, RealHttpRequestFfi, RealHttpSysFfi},
@@ -10,8 +10,8 @@ where
     THttpSysFfi: HttpSysFfi + 'static,
     THttpRequestFfi: HttpRequestFfi + 'static,
 {
-    http_sys_ffi: Arc<THttpSysFfi>,
-    http_request_ffi: Arc<THttpRequestFfi>,
+    pub(crate) http_sys_ffi: &'static THttpSysFfi,
+    pub(crate) http_request_ffi: &'static THttpRequestFfi,
 }
 
 impl<THttpSysFfi, THttpRequestFfi> HttpSysServerCore<THttpSysFfi, THttpRequestFfi>
@@ -20,23 +20,13 @@ where
     THttpRequestFfi: HttpRequestFfi + 'static,
 {
     pub(crate) fn new(
-        http_sys_ffi: Arc<THttpSysFfi>,
-        http_request_ffi: Arc<THttpRequestFfi>,
+        http_sys_ffi: &'static THttpSysFfi,
+        http_request_ffi: &'static THttpRequestFfi,
     ) -> Self {
         HttpSysServerCore {
             http_sys_ffi,
             http_request_ffi,
         }
-    }
-
-    // Boilerplate, to allow the same FFI implementation to be easily cloned.
-    pub(crate) fn http_sys_ffi(&self) -> Arc<THttpSysFfi> {
-        Arc::clone(&self.http_sys_ffi)
-    }
-
-    // Boilerplate, to allow the same FFI implementation to be easily cloned.
-    pub(crate) fn http_request_ffi(&self) -> Arc<THttpRequestFfi> {
-        Arc::clone(&self.http_request_ffi)
     }
 
     pub(crate) fn start(&self) -> i32 {
@@ -46,7 +36,7 @@ where
     pub(crate) fn accept(&self) -> HttpRequestCore<THttpRequestFfi> {
         // Simulate some multithreaded logic.
         thread::spawn({
-            let ffi = Arc::clone(&self.http_request_ffi);
+            let ffi = self.http_request_ffi;
 
             move || HttpRequestCore::new(ffi)
         })
@@ -67,10 +57,7 @@ pub struct HttpSysServer(HttpSysServerCore<RealHttpSysFfi, RealHttpRequestFfi>);
 // This macro could automatically generate the necessary wrapper functions.
 impl HttpSysServer {
     pub fn new() -> Self {
-        HttpSysServer(HttpSysServerCore::new(
-            Arc::new(RealHttpSysFfi::default()),
-            Arc::new(RealHttpRequestFfi::default()),
-        ))
+        HttpSysServer(HttpSysServerCore::new(&RealHttpSysFfi, &RealHttpRequestFfi))
     }
 
     pub fn start(&self) -> i32 {

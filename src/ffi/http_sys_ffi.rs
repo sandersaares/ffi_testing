@@ -7,7 +7,7 @@ pub(crate) trait HttpSysFfi: Send + Sync {
 }
 
 #[derive(Default)]
-pub(crate) struct RealHttpSysFfi {}
+pub(crate) struct RealHttpSysFfi;
 
 impl HttpSysFfi for RealHttpSysFfi {
     fn http_start(&self) -> i32 {

@@ -6,7 +6,7 @@ pub(crate) trait HttpRequestFfi: Send + Sync {
 }
 
 #[derive(Default)]
-pub(crate) struct RealHttpRequestFfi {}
+pub(crate) struct RealHttpRequestFfi;
 
 impl HttpRequestFfi for RealHttpRequestFfi {
     fn process_request(&self) -> i32 {

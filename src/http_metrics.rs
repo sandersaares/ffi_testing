@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{
     ffi::{HttpRequestFfi, HttpSysFfi, RealHttpRequestFfi, RealHttpSysFfi},
     http_sys_server::{HttpSysServer, HttpSysServerCore},
@@ -10,27 +8,22 @@ where
     THttpSysFfi: HttpSysFfi + 'static,
     THttpRequestFfi: HttpRequestFfi + 'static,
 {
-    http_sys_ffi: Arc<THttpSysFfi>,
+    pub(crate) http_sys_ffi: &'static THttpSysFfi,
     http_server: HttpSysServerCore<THttpSysFfi, THttpRequestFfi>,
 }
 
 impl<THttpSysFfi, THttpRequestFfi> HttpMetricsCore<THttpSysFfi, THttpRequestFfi>
 where
-    THttpSysFfi: HttpSysFfi + 'static,
-    THttpRequestFfi: HttpRequestFfi + 'static,
+    THttpSysFfi: HttpSysFfi,
+    THttpRequestFfi: HttpRequestFfi,
 {
     pub(crate) fn for_server(
         http_sys_server: HttpSysServerCore<THttpSysFfi, THttpRequestFfi>,
     ) -> Self {
         Self {
-            http_sys_ffi: http_sys_server.http_sys_ffi(),
+            http_sys_ffi: http_sys_server.http_sys_ffi,
             http_server: http_sys_server,
         }
-    }
-
-    // Boilerplate, to allow the same FFI implementation to be easily cloned.
-    pub(crate) fn http_sys_ffi(&self) -> Arc<THttpSysFfi> {
-        Arc::clone(&self.http_sys_ffi)
     }
 
     pub(crate) fn get_metrics(&self) -> String {

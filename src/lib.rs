@@ -7,7 +7,7 @@ mod http_sys_server;
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
+    use std::sync::LazyLock;
 
     use ffi::{MockHttpRequestFfi, MockHttpSysFfi};
     use http_metrics::{HttpMetrics, HttpMetricsCore};
@@ -29,16 +29,24 @@ mod tests {
 
     #[test]
     fn test_against_mock_os() {
-        let mut http_sys_ffi = MockHttpSysFfi::new();
-        http_sys_ffi.expect_http_start().returning(|| 1);
-        http_sys_ffi
-            .expect_get_metrics_for()
-            .returning(|server_id| format!("Fake metrics for server {}", server_id));
+        static HTTP_SYS_FFI: LazyLock<MockHttpSysFfi> = LazyLock::new(|| {
+            let mut mock = MockHttpSysFfi::new();
 
-        let mut http_request_ffi = MockHttpRequestFfi::new();
-        http_request_ffi.expect_process_request().returning(|| 1);
+            mock.expect_http_start().returning(|| 1);
+            mock.expect_get_metrics_for()
+                .returning(|server_id| format!("Fake metrics for server {}", server_id));
 
-        let server = HttpSysServerCore::new(Arc::new(http_sys_ffi), Arc::new(http_request_ffi));
+            mock
+        });
+
+        static HTTP_REQUEST_FFI: LazyLock<MockHttpRequestFfi> = LazyLock::new(|| {
+            let mut mock = MockHttpRequestFfi::new();
+            mock.expect_process_request().returning(|| 1);
+
+            mock
+        });
+
+        let server = HttpSysServerCore::new(&*HTTP_SYS_FFI, &*HTTP_REQUEST_FFI);
         assert_eq!(server.start(), 1);
 
         let request = server.accept();
