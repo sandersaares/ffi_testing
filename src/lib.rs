@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod ffi;
 mod http_metrics;
 mod http_request;

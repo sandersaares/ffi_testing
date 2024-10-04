@@ -1,4 +1,4 @@
-use std::{ffi::c_ulong, hint::black_box, sync::Arc, time::SystemTime};
+use std::{ffi::c_ulong, hint::black_box, sync::Arc};
 
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
