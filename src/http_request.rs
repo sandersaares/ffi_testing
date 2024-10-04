@@ -4,14 +4,14 @@ use crate::ffi::{HttpRequestFfi, RealHttpRequestFfi};
 
 pub(crate) struct HttpRequestCore<THttpRequestFfi>
 where
-    THttpRequestFfi: HttpRequestFfi,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     http_request_ffi: Arc<THttpRequestFfi>,
 }
 
 impl<THttpRequestFfi> HttpRequestCore<THttpRequestFfi>
 where
-    THttpRequestFfi: HttpRequestFfi,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     pub(crate) fn new(http_request_ffi: Arc<THttpRequestFfi>) -> Self {
         HttpRequestCore { http_request_ffi }

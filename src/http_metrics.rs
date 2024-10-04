@@ -7,8 +7,8 @@ use crate::{
 
 pub(crate) struct HttpMetricsCore<THttpSysFfi, THttpRequestFfi>
 where
-    THttpSysFfi: HttpSysFfi,
-    THttpRequestFfi: HttpRequestFfi,
+    THttpSysFfi: HttpSysFfi + 'static,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     http_sys_ffi: Arc<THttpSysFfi>,
     http_server: HttpSysServerCore<THttpSysFfi, THttpRequestFfi>,
@@ -16,8 +16,8 @@ where
 
 impl<THttpSysFfi, THttpRequestFfi> HttpMetricsCore<THttpSysFfi, THttpRequestFfi>
 where
-    THttpSysFfi: HttpSysFfi,
-    THttpRequestFfi: HttpRequestFfi,
+    THttpSysFfi: HttpSysFfi + 'static,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     pub(crate) fn for_server(
         http_sys_server: HttpSysServerCore<THttpSysFfi, THttpRequestFfi>,

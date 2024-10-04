@@ -1,7 +1,7 @@
 use mockall::automock;
 
 #[automock]
-pub(crate) trait HttpRequestFfi {
+pub(crate) trait HttpRequestFfi: Send + Sync {
     fn process_request(&self) -> i32;
 }
 

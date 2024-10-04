@@ -1,7 +1,7 @@
 use mockall::automock;
 
 #[automock]
-pub(crate) trait HttpSysFfi {
+pub(crate) trait HttpSysFfi: Send + Sync {
     fn http_start(&self) -> i32;
     fn get_metrics_for(&self, server_id: i32) -> String;
 }

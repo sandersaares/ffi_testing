@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, thread};
 
 use crate::{
     ffi::{HttpRequestFfi, HttpSysFfi, RealHttpRequestFfi, RealHttpSysFfi},
@@ -7,8 +7,8 @@ use crate::{
 
 pub(crate) struct HttpSysServerCore<THttpSysFfi, THttpRequestFfi>
 where
-    THttpSysFfi: HttpSysFfi,
-    THttpRequestFfi: HttpRequestFfi,
+    THttpSysFfi: HttpSysFfi + 'static,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     http_sys_ffi: Arc<THttpSysFfi>,
     http_request_ffi: Arc<THttpRequestFfi>,
@@ -16,8 +16,8 @@ where
 
 impl<THttpSysFfi, THttpRequestFfi> HttpSysServerCore<THttpSysFfi, THttpRequestFfi>
 where
-    THttpSysFfi: HttpSysFfi,
-    THttpRequestFfi: HttpRequestFfi,
+    THttpSysFfi: HttpSysFfi + 'static,
+    THttpRequestFfi: HttpRequestFfi + 'static,
 {
     pub(crate) fn new(
         http_sys_ffi: Arc<THttpSysFfi>,
@@ -44,7 +44,14 @@ where
     }
 
     pub(crate) fn accept(&self) -> HttpRequestCore<THttpRequestFfi> {
-        HttpRequestCore::new(Arc::clone(&self.http_request_ffi))
+        // Simulate some multithreaded logic.
+        thread::spawn({
+            let ffi = Arc::clone(&self.http_request_ffi);
+
+            move || HttpRequestCore::new(ffi)
+        })
+        .join()
+        .unwrap()
     }
 
     pub(crate) fn server_id(&self) -> i32 {
