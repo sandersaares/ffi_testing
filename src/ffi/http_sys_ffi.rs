@@ -6,7 +6,6 @@ pub(crate) trait HttpSysFfi: Send + Sync {
     fn get_metrics_for(&self, server_id: i32) -> String;
 }
 
-#[derive(Default)]
 pub(crate) struct RealHttpSysFfi;
 
 impl HttpSysFfi for RealHttpSysFfi {
